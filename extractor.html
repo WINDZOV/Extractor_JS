@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Nina K. [WiNDZOV]">
+<meta name="description" content="UNPACK is a browser-side archive extractor for ZIP, TAR, GZ, BZ2, XZ and more. No upload required.">
+<meta name="theme-color" content="#0a0a0a">
+<title>UNPACK</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.min.js"></script>
+<script src="https://unpkg.com/@shelf/unrar-wasm@1.0.6/web/index.umd.js"></script>
+<script src="extractor.js" defer></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <button class="btn btn-tertiary theme-toggle" id="theme-toggle" type="button">Light</button>
+  <button class="btn btn-tertiary contact-toggle" id="contact-toggle" type="button" aria-haspopup="dialog" aria-controls="contact-modal" aria-expanded="false">Contact</button>
+
+<header>
+  <div class="logo">
+    <span class="logo-mark">
+      <span class="logo-letter">U</span>
+      <span class="logo-letter">N</span>
+      <span class="logo-letter">P</span>
+      <span class="logo-letter">A</span>
+      <span class="logo-letter">C</span>
+      <span class="logo-letter">K</span>
+    </span>
+    <span class="logo-badge">almost everything</span>
+  </div>
+  <div class="tagline">browser-side archive extractor</div>
+</header>
+
+<noscript>
+  <div class="note visible" style="margin:24px 0 0; border-color:#444; color:#f1c135; background:#111;">JavaScript is required to use this tool. Please enable JavaScript or open this page in a browser with scripting enabled.</div>
+</noscript>
+
+<main>
+  <div class="outer-frame">
+    <div class="inner-frame">
+      <div class="card">
+        <div class="card-header">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <span class="card-title">ARCHIVE_EXTRACTOR.JS</span>
+        </div>
+
+        <div id="dropzone" role="button" tabindex="0" aria-label="Drop archive or click to browse" title="Drop archive or click to browse">
+          <input type="file" id="file-input" accept=".zip,.tar,.gz,.tgz,.tar.gz,.bz2,.tar.bz2,.tbz2,.xz,.txz,.tar.xz,.tar.zst,.tar.lz4,.7z,.rar,.zst,.lz4" aria-label="Select archive file">
+          <div class="drop-icon">⬡</div>
+          <div class="drop-label">Drop archive here or <span>click to browse</span></div>
+          <div class="formats">ZIP · TAR · TAR.GZ · TAR.BZ2 · TAR.XZ · TAR.TXZ · GZ · BZ2 · XZ · 7Z · RAR · ZST · LZ4</div>
+        </div>
+
+        <div id="file-info">
+          <span class="file-name" id="fname"></span>
+          <span class="file-size" id="fsize"></span>
+        </div>
+
+        <div id="progress-wrap">
+          <div class="progress-label">PROCESSING</div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" id="pbar"></div></div>
+        </div>
+
+        <div id="status" aria-live="polite" aria-atomic="true"></div>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="btn-extract" disabled>⬡ Extract</button>
+          <button class="btn" id="btn-reset" disabled>✕ Reset</button>
+        </div>
+
+        <div id="tree-wrap">
+          <div id="explorer-layout">
+            <div id="tree-column">
+              <div class="tree-body">
+                <div class="tree-header">
+                  <span>CONTENTS</span>
+                  <span id="tree-count"></span>
+                </div>
+                <div class="selection-controls">
+                  <div class="selection-meta">Selected <strong id="selected-count">0</strong> of <strong id="total-count">0</strong></div>
+                  <div class="selection-actions">
+                    <button class="btn btn-tertiary" id="btn-select-all" disabled>Select all</button>
+                    <button class="btn btn-tertiary" id="btn-deselect-all" disabled>Deselect</button>
+                  </div>
+                </div>
+                <div id="tree-list"></div>
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+
+        <div id="dl-section">
+          <div class="dl-title">DOWNLOAD</div>
+          <div class="dl-row">
+            <button class="btn btn-primary" id="btn-dl-selected-zip" disabled>↓ Selected ZIP</button>
+            <button class="btn" id="btn-dl-selected" disabled>↓ Selected files</button>
+          </div>
+        </div>
+
+        <div class="note" id="note-unsupported">
+          <strong>NOTE:</strong> 7Z, ZST, and LZ4 formats cannot be fully decoded in-browser without native binaries.
+          For these formats, use the bash <strong>extract()</strong> function or a desktop tool.
+          ZIP, TAR, TAR.GZ, TAR.BZ2, TAR.XZ, GZ, BZ2, XZ, and RAR are fully supported.
+        </div>
+
+        <div id="note-large" class="note" aria-live="polite"></div>
+        <div class="spacer"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="page-footer">
+  MADE BY NINA K.  ||  [WiNDZOV] © <span id="year"></span>
+</footer>
+
+
+<div id="preview-modal" role="dialog" aria-modal="true" aria-labelledby="modal-label">
+  <div class="modal-backdrop" id="modal-backdrop"></div>
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-label">
+        PREVIEW &nbsp;·&nbsp; <strong id="modal-filename">—</strong>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-dl" id="modal-btn-dl">↓ Download</button>
+        <button class="modal-btn modal-btn-close" id="modal-btn-close">✕ Close</button>
+      </div>
+    </div>
+    <pre id="modal-body"></pre>
+    <div class="modal-footer">
+      <span id="modal-meta"></span>
+      <span>ESC · click fuera para cerrar</span>
+    </div>
+  </div>
+</div>
+
+
+<div id="contact-backdrop"></div>
+<div id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title" tabindex="-1">
+  <div class="contact-modal-content">
+    <button class="contact-modal-close" id="contact-btn-close" aria-label="Close contact dialog">✕</button>
+    <h2 id="contact-modal-title">Contact & Feedback</h2>
+    <p>Got feedback or want to get in touch? Send us a message!</p>
+    
+    <div class="contact-section">
+      <h3>Contacts</h3>
+      <div class="contact-info">
+        <a href="mailto:contact@example.com" class="contact-link"> Email: contact@example.com</a>
+        <a href="https://linkedin.com/in/ninadev" target="_blank" class="contact-link"> LinkedIn</a>
+        <a href="https://github.com/windzov" target="_blank" class="contact-link"> GitHub</a>
+      </div>
+    </div>
+
+    <div class="contact-section">
+      <h3>Send Feedback [None of the fields are required]</h3>
+      <form id="contact-form" class="contact-form">
+        <input type="text" name="name" placeholder="Your Name" class="contact-input">
+        <input type="email" name="email" placeholder="Your Email" class="contact-input">
+        <textarea name="message" placeholder="Messages are not stored - please include your contact info if you want a response" class="contact-input contact-textarea"></textarea>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+      </form>
+      <p class="contact-note"></p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
