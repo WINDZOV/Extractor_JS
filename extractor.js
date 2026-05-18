@@ -278,35 +278,57 @@ function decompressXz(buf) {
   }
 }
 
-// ── RAR (via @shelf/unrar-wasm) ────────────────────────────────────────────
+/// Cache para no recargar en cada extracción
+let _unrarExtractor = null;
+
+async function loadUnrar() {
+  if (_unrarExtractor) return _unrarExtractor;
+
+  // Carga el módulo JS y el binario WASM en paralelo
+  const [mod, wasmResp] = await Promise.all([
+    import('https://esm.sh/node-unrar-js@2.0.0'),
+    fetch('https://cdn.jsdelivr.net/npm/node-unrar-js@2.0.0/dist/js/unrar.wasm')
+  ]);
+
+  if (!wasmResp.ok) throw new Error('No se pudo descargar unrar.wasm');
+  const wasmBinary = await wasmResp.arrayBuffer();
+
+  // createExtractorFromData necesita el binario WASM explícitamente
+  _unrarExtractor = (data) => mod.createExtractorFromData({ wasmBinary, data });
+  return _unrarExtractor;
+}
+
 async function extractRar(file) {
-  if (typeof UnrarJS === 'undefined') {
-    throw new Error('unrar-wasm library failed to load. Check your internet connection.');
-  }
+  showProgress(10);
 
-  showProgress(15);
-  const buf = await file.arrayBuffer();
-  showProgress(35);
-
-  let entries;
+  let createExtractor;
   try {
-    entries = await UnrarJS.unrar(new Uint8Array(buf));
+    createExtractor = await loadUnrar();
   } catch (e) {
-    throw new Error('RAR extraction failed: ' + e.message);
+    throw new Error('No se pudo cargar la librería RAR: ' + e.message);
   }
 
-  showProgress(70);
+  showProgress(35);
+  const buf = new Uint8Array(await file.arrayBuffer());
+  showProgress(50);
 
-  for (const entry of entries) {
-    const isDir = entry.name.endsWith('/') || !entry.fileContent;
+  const extractor = await createExtractor(buf);
+  showProgress(65);
+
+  // .extract() devuelve un iterador lazy — spread obligatorio
+  const { files } = extractor.extract();
+  for (const f of [...files]) {
+    const name  = f.fileHeader.name;
+    const isDir = f.fileHeader.flags?.directory ?? name.endsWith('/');
+
     if (isDir) {
-      extractedFiles.push({ name: entry.name, path: folderName + '/' + entry.name, isDir: true });
-    } else {
+      extractedFiles.push({ name, path: folderName + '/' + name, isDir: true });
+    } else if (f.extraction) {
       extractedFiles.push({
-        name: entry.name,
-        path: folderName + '/' + entry.name,
-        data: entry.fileContent,
-        isDir: false,
+        name,
+        path:     folderName + '/' + name,
+        data:     f.extraction,   // Uint8Array
+        isDir:    false,
         selected: true
       });
     }
@@ -706,7 +728,7 @@ if (contactModal) {
   });
 }
 
-//* Contact form handler */
+// Contact form handler 
 
 emailjs.init("ThPXSY2EtDHTs4kmd");
 
@@ -720,13 +742,13 @@ if (contactForm) {
 
     try {
 
-      console.log([...new FormData(contactForm)]);
-
       await emailjs.sendForm(
         "service_t7hwgqv",
         "template_eqvcv6e",
         contactForm
       );
+
+      setStatus("✓ Message sent successfully!", "ok");
 
       alert("Message sent successfully!");
 
@@ -737,6 +759,8 @@ if (contactForm) {
     } catch (error) {
 
       console.error(error);
+
+      setStatus("Failed to send message.", "error");
 
       alert("Failed to send message.");
 
