@@ -706,15 +706,42 @@ if (contactModal) {
   });
 }
 
-// Contact form handler
-const contactForm = document.getElementById('contact-form');
+//* Contact form handler */
+
+emailjs.init("ThPXSY2EtDHTs4kmd");
+
+const contactForm = document.getElementById("contact-form");
+
 if (contactForm) {
-  contactForm.addEventListener('submit', (e) => {
+
+  contactForm.addEventListener("submit", async (e) => {
+
     e.preventDefault();
-    const formData = new FormData(contactForm);
-    // For now, just show a confirmation
-    alert('Thank you for your message! We will get back to you soon.');
-    contactForm.reset();
-    closeContactModal();
+
+    try {
+
+      console.log([...new FormData(contactForm)]);
+
+      await emailjs.sendForm(
+        "service_t7hwgqv",
+        "template_eqvcv6e",
+        contactForm
+      );
+
+      alert("Message sent successfully!");
+
+      contactForm.reset();
+
+      closeContactModal();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Failed to send message.");
+
+    }
+
   });
+
 }

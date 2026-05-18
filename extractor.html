@@ -118,6 +118,10 @@
 
 <footer class="page-footer">
   MADE BY NINA K.  ||  [WiNDZOV] © <span id="year"></span>
+  <div class="footer-contacts" aria-label="Additional contacts">
+    <a href="https://linkedin.com/in/ninadev" target="_blank" rel="noopener noreferrer" class="footer-link">LinkedIn</a>
+    <a href="https://github.com/windzov" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+  </div>
 </footer>
 
 
@@ -152,23 +156,52 @@
     <div class="contact-section">
       <h3>Contacts</h3>
       <div class="contact-info">
-        <a href="mailto:contact@example.com" class="contact-link"> Email: contact@example.com</a>
-        <a href="https://linkedin.com/in/ninadev" target="_blank" class="contact-link"> LinkedIn</a>
-        <a href="https://github.com/windzov" target="_blank" class="contact-link"> GitHub</a>
+        <a href="mailto:contact@example.com" class="btn btn-primary contact-link" placeholder="Email" aria-label="Send email">Email</a>
+        <a href="https://linkedin.com/in/ninadev" target="_blank" rel="noopener noreferrer" class="btn btn-primary contact-link" aria-label="Open LinkedIn profile">LinkedIn</a>
+        <a href="https://github.com/windzov" target="_blank" rel="noopener noreferrer" class="btn btn-primary contact-link" aria-label="Open GitHub profile">GitHub</a>
       </div>
     </div>
 
     <div class="contact-section">
       <h3>Send Feedback [None of the fields are required]</h3>
       <form id="contact-form" class="contact-form">
-        <input type="text" name="name" placeholder="Your Name" class="contact-input">
-        <input type="email" name="email" placeholder="Your Email" class="contact-input">
-        <textarea name="message" placeholder="Messages are not stored - please include your contact info if you want a response" class="contact-input contact-textarea"></textarea>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+
+        <input
+          type="text"
+          name="from_name"
+          class="contact-input"
+          placeholder="Your name"
+          required
+        >
+
+        <input
+          type="email"
+          name="from_email"
+          class="contact-input"
+          placeholder="Your email"
+          required
+        >
+
+        <textarea
+          name="message"
+          class="contact-input contact-textarea"
+          placeholder="Message"
+          required
+        ></textarea>
+
+        <button type="submit" class="btn btn-primary">
+          Send Message
+        </button>
+
       </form>
       <p class="contact-note"></p>
     </div>
   </div>
 </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
 </body>
 </html>
+
+
