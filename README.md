@@ -9,11 +9,12 @@ UNPACK is a static page for extracting compressed archives directly in the brows
 - Runs fully client-side with no upload to any server.
 
 ## How to use
-1. Open `extractor.html` in a modern browser.
-2. Drag an archive into the drop area or click to browse.
-3. Click `Extract` when the file is ready.
-4. Select the files you want to download.
-5. Download the selected files as a ZIP or individually.
+1. Download `index.html`, `extractor.js` & `styles.css` into a folder
+2. Open `index.html` in a modern browser.
+3. Drag an archive into the drop area or click to browse.
+4. Click `Extract` when the file is ready.
+5. Select the files you want to download.
+6. Download the selected files as a ZIP or individually.
 
 # You can open the link directly in a browser as well     
 -    https://windzov.github.io/Extractor_JS/
@@ -24,12 +25,14 @@ UNPACK is a static page for extracting compressed archives directly in the brows
 - Selected files can be downloaded as a packaged ZIP.
 - Footer includes dynamic credits.
 
-## Notes
-- A `.gitignore` is not required if you are not using a Git repository.
-- If you decide to upload this to GitHub, you can add a `.gitignore` to exclude local or temporary files.
+## Upcoming features
+1. Adding a password protection for a downloaded .zip archive
+2. Detection of the zip bombs
+3. Preview for images
+4. preview for PDF & docx files
 
 ## Files
-- `extractor.html` 
+- `index.html` 
 - `extractor.js`
 - `extractor.css`
 
