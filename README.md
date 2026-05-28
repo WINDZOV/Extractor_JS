@@ -3,8 +3,9 @@
 UNPACK is a static page for extracting compressed archives directly in the browser.
 
 ## What it does
-- Loads RAR, ZIP, TAR, TAR.GZ, TAR.BZ2, TAR.XZ, GZ, BZ2, and XZ archives.
+- Unpacks RAR, ZIP, TAR, TAR.GZ, TAR.BZ2, TAR.XZ, GZ, BZ2, and XZ archives.
 - Displays the file tree of the archive.
+- Allows preview of the selected file.
 - Allows selecting individual files for download or packaging into a ZIP.
 - Runs fully client-side with no upload to any server.
 
